@@ -12,42 +12,49 @@ export default class SearchButton extends Component {
     this.state={
         books:[],
         output:[],
-        query:[]
+        query:"",
     }
 };
+
+componentDidMount(){
+  BooksAPI.getAll().then(response => {
+    console.log(response);
+    this.setState({books:response});
+  });
+
+  };
 
 upQuery = (query) =>{
   this.setState({query:query}, this.submit);
 };
 
+
 submit(){
   if(this.state.query === undefined || this.state.query === ""){
-     this.setState({output:[]})
+    return this.setState({output:[]});
+    
   }
   BooksAPI.search(this.state.query.trim()).then(response => {
-    console.log(response);
+     console.log(response);
     if(response.error){
-      this.setState({output:[]});
+    return  this.setState({output:[]});
     }else{
    
     response.forEach(i => {
       let find = this.state.books.filter(bo =>bo.id === i.id);
-      i.shelf = find[0] ? find.shelf : null;
+      //  i.shelf = find[0] ? find[0].shelf : null ;
+      if(find[0]){
+        i.shelf = find[0];
+      }
      
     });
-    this.setState({output: response});
+     return this.setState({output: response});
     }
     
-  })
+  });
 }
 
- componentDidMount(){
-   BooksAPI.getAll().then(response => {
-     console.log(response);
-     this.setState({books:response});
-   });
-
-   };
+ 
 
    updateBooks= (book, shelf) => {
     BooksAPI.update(book, shelf)
